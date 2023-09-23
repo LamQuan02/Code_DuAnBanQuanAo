@@ -253,15 +253,15 @@ public class FrHoaDon extends javax.swing.JInternalFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThemActionPerformed
-//        HoaDon hd = validateHoaDon();
-//        if (hd != null) {
-//            themThongTin(hd);
-//            model.setRowCount(0);
-//            layDuLieu();
-//            JOptionPane.showMessageDialog(this, "Thêm Thành Công");
-//        } else {
-//            JOptionPane.showMessageDialog(this, "Thêm Thất Bại");
-//        }
+        HoaDon hd = validateHoaDon();
+        if (hd != null) {
+            themThongTin(hd);
+            model.setRowCount(0);
+            layDuLieu();
+            JOptionPane.showMessageDialog(this, "Thêm Thành Công");
+        } else {
+            JOptionPane.showMessageDialog(this, "Thêm Thất Bại");
+        }
         // TODO add your handling code here:
     }//GEN-LAST:event_btnThemActionPerformed
 
@@ -301,18 +301,37 @@ public class FrHoaDon extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_tblTableMouseClicked
 
     private void btnSuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSuaActionPerformed
-//         HoaDon hd = new HoaDon();
-//        int index = tblTable.getSelectedRow();
-//        int ma = Integer.parseInt(txtMaHD.getText());
-//        hd.setMa(ma);
-//        String nguoiTao = txtNguoiTao.getText();
+         HoaDon hd = new HoaDon();
+        int index = tblTable.getSelectedRow();
+        int ma = Integer.parseInt(txtMaHD.getText());
+        hd.setMa(ma);
+        String nguoiTao = txtNguoiTao.getText();
 //        Date ngayTao = txtNgayTao.getText();
-//        int trangThai = Integer.parseInt(rdDaTT.getText());
-//        hd.setNguoiTao(nguoiTao);
-//        hd.setNgayTao(ngayTao);
-//        hd.setTrangThai(trangThai);
-//        this.hoaDonService.capNhatThongTin(hd);
-//        loadTableHD();
+        String ngayTao = txtNgayTao.getText();
+        if (ngayTao.isBlank()) {
+            JOptionPane.showMessageDialog(this, "Nhap ngay tao");
+        }else{
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            dateFormat.setLenient(false);
+            Date ngayTaoMoi = null;
+            try {
+                ngayTaoMoi = dateFormat.parse(ngayTao);
+                int trangThai = 0;
+                if (rdDaTT.isSelected()) {
+                    trangThai = 1;
+                }
+                if (rdCTT.isSelected()) {
+                    trangThai = 0;
+                }
+                hd.setNguoiTao(nguoiTao);
+                hd.setNgayTao(ngayTaoMoi);
+                hd.setTrangThai(trangThai);
+                this.hoaDonService.capNhatThongTin(hd);
+                loadTableHD();
+            } catch (ParseException e) {
+                JOptionPane.showMessageDialog(this, "Ngay tao khong hop le");
+            }
+        }
         // TODO add your handling code here:
     }//GEN-LAST:event_btnSuaActionPerformed
 
@@ -343,48 +362,54 @@ public class FrHoaDon extends javax.swing.JInternalFrame {
         modelHD.setRowCount(0);
         List<HoaDon> dsHoaDons = hoaDonService.layDanhSach();
         for (HoaDon hd : dsHoaDons) {
-            modelHD.addRow(new Object[]{
-                hd.getNguoiTao(), hd.getNgayTao(), hd.getTrangThai()
+            int ma = hd.getMa();
+            String nguoiTao = hd.getNguoiTao();
+            Date ngayTao = hd.getNgayTao();
+            String trangThai = "";
+            if (hd.getTrangThai() == 1) {
+                trangThai = "Đã Thanh Toán";
+            } else {
+                trangThai = "Chưa Thanh Toán";
+            }
+            model.addRow(new Object[]{ma, nguoiTao, ngayTao, trangThai
             });
         }
     }
 
-//    private HoaDon validateHoaDon() {
-//        String nguoiTao = txtNguoiTao.getText();
-//        if (nguoiTao.isBlank()) {
-//            JOptionPane.showMessageDialog(this, "Nhap ten nguoi tao");
-//            return null;
-//        }
-//
-//        String ngayTao = txtNgayTao.getText();
-//        if (ngayTao.isBlank()) {
-//            JOptionPane.showMessageDialog(this, "Nhap ngay tao");
-//            return null;
-//        }
-//        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-//        dateFormat.setLenient(false);
-//
-//        try {
-//            dateFormat.parse(ngayTao);
-//        } catch (ParseException e) {
-//            JOptionPane.showMessageDialog(this, "Ngay tao khong hop le");
-//            return null;
-//        }
-//
-//        int trangThai = 0;
-//        if (rdDaTT.isSelected()) {
-//            trangThai = 1;
-//        }
-//        if (rdCTT.isSelected()) {
-//            trangThai = 0;
-//        }
-//
-//        HoaDon hd = new HoaDon();
-//        hd.setNguoiTao(nguoiTao);
-//        hd.setNgayTao(ngayTao);
-//        hd.setTrangThai(trangThai);
-//        return hd;
-//    }
+    private HoaDon validateHoaDon() {
+        String nguoiTao = txtNguoiTao.getText();
+        if (nguoiTao.isBlank()) {
+            JOptionPane.showMessageDialog(this, "Nhap ten nguoi tao");
+            return null;
+        }
+
+        String ngayTao = txtNgayTao.getText();
+        if (ngayTao.isBlank()) {
+            JOptionPane.showMessageDialog(this, "Nhap ngay tao");
+            return null;
+        }
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        dateFormat.setLenient(false);
+        Date ngayTaoMoi = null;
+        try {
+             ngayTaoMoi = dateFormat.parse(ngayTao);
+        } catch (ParseException e) {
+            JOptionPane.showMessageDialog(this, "Ngay tao khong hop le");
+            return null;
+        }
+        int trangThai = 0;
+        if (rdDaTT.isSelected()) {
+            trangThai = 1;
+        }
+        if (rdCTT.isSelected()) {
+            trangThai = 0;
+        }
+        HoaDon hd = new HoaDon();
+        hd.setNguoiTao(nguoiTao);
+        hd.setNgayTao(ngayTaoMoi);
+        hd.setTrangThai(trangThai);
+        return hd;
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnClear;
